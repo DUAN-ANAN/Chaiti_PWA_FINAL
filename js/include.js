@@ -8,8 +8,11 @@ var separator = "/";
 var db;
 var dbInstance;
 var allDBs = ["db.sqlite"];
-var remoteIP = "203.66.65.120";
+// var remoteIP = "203.66.65.120";
+var remoteIP = "127.0.0.1";
+// var remoteIP = "localhost";
 var remoteURI = "http://" + remoteIP + "/ChiayiSecretaryMobileService/";
+//http://localhost/ChiayiSecretaryMobileService/service.asmx/chkAccount
 var remoteDBURI = remoteURI+"db/";
 var dbModifiedTime = "1560755549000";
 

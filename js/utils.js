@@ -62,7 +62,7 @@ function doAjax(action, params, callback, errCallback) {
             if (errCallback)
                 errCallback(msg, params);
             else
-                alert("無法取得資料");
+                alert("$.ajax 無法取得資料");
         }
     });
 }

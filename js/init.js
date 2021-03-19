@@ -12,6 +12,7 @@ var app = {
 
     },
     loadDB: function () {
+        // chkAccount_Service();
         // window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, onFileSystemFail);
     },
     bindHTMLEvents: function () {
@@ -29,8 +30,8 @@ var app = {
                 alert("請填寫密碼");
                 return
             }
-
-            chkAccount();
+            chkAccount_Service();
+            // chkAccount();
         });
     }
 
@@ -157,80 +158,119 @@ function fileDL(sqlite, callback) {
     );
 }
 
-function updateDB() {
-    //doAjax("getAccount", {}, getAccount); // 20210202 暫時不做 
+
+//var sqlcmd = "select * from Account where LOGIN_ACCOUNT='0x" + hex_md5($("#uid").val().trim()) + "' and LOGIN_PSD='0x" + hex_md5($("#upwd").val().trim()) + "'";
+
+function chkAccount_Service(){
+    var id  = $("#uid").val().trim();
+    var pwd = $("#upwd").val().trim();
+    console.log(id , pwd);
+
+    doAjax("chkAccount" , { "id":id , "pwd":pwd } , chkAccount);
 }
 
-function getAccount(msg) {
-    db_check();
-    db.transaction(
-        function (tx) {
-            var data = msg["getAccount"];
+function chkAccount(msg) {
+    console.log('chk Account');
+    var data = msg["getAccount"];
+    if ( data.length > 0 ) {
 
-            sqlcmd = "delete from Account";
-            tx.executeSql(sqlcmd);
-            for (var i = 0; i < data.length; i++) {
-                sqlcmd = "insert into Account(USER_ID, LOGIN_ACCOUNT, LOGIN_PSD) values('" + data[i]["USER_ID"] + "','" + data[i]["LOGIN_ACCOUNT"] + "','" + data[i]["LOGIN_PSD"] + "')";
-                tx.executeSql(sqlcmd);
-            }
-            if (localStorage.getItem("updateTime") != undefined && localStorage.getItem("updateTime") != "") {
-                $(".wrapper").loading('stop');
-                if (localStorage.getItem("NAME") != undefined && localStorage.getItem("PWD") != undefined && localStorage.getItem("NAME") != "" && localStorage.getItem("PWD") != "") {
-                    chkAccount();
-                }
-            } else {
-                callBK = function () {
-                    $(".wrapper").loading('stop');
-                    localStorage.setItem("updateTime", new Date().getTime());
-                    if (localStorage.getItem("NAME") != undefined && localStorage.getItem("PWD") != undefined && localStorage.getItem("NAME") != "" && localStorage.getItem("PWD") != "") {
-                        chkAccount();
-                    }
-                };
-                updateENG_PCC_BASIC();
-            }
-        },
-        function (e) {
-            console.log("ERROR: " + e.message);
-        },
-        function (e) {
-            console.log("USERS Updated ");
-
+        if ($("#remember").is(":checked")) {
+            localStorage.setItem("NAME", $("#uid").val().trim());
+            localStorage.setItem("PWD", $("#upwd").val().trim());
+        } else {
+            localStorage.setItem("NAME", "");
+            localStorage.setItem("PWD", "");
         }
-    );
+
+        location.href = 'list.html';
+
+    }
+    else {
+         alert("您的帳號或密碼錯誤，請重新輸入。");
+    }
+
+    // console.log(sqlcmd);
+
 }
 
+//#region 
+// function updateDB() {
+//     doAjax("getAccount", {}, getAccount); // 20210202 暫時不做 
+// }
 
-function chkAccount() {
-    // db_check();
-    var sqlcmd = "select * from Account where LOGIN_ACCOUNT='0x" + hex_md5($("#uid").val().trim()) + "' and LOGIN_PSD='0x" + hex_md5($("#upwd").val().trim()) + "'";
-    db.transaction(
-        function (tx) {
-            tx.executeSql(sqlcmd, [], function (tx2, res) {
-                if (res.rows.length > 0) {
-                    console.log("Aid:" + res.rows.item(0).Aid);
-                    console.log("USER_ID:" + res.rows.item(0).USER_ID);
-                    console.log("LOGIN_ACCOUNT:" + res.rows.item(0).LOGIN_ACCOUNT);
-                    console.log("LOGIN_PSD:" + res.rows.item(0).LOGIN_PSD);
+// function getAccount(msg) {
+//     db_check();
+//     db.transaction(
+//         function (tx) {
+//             var data = msg["getAccount"];
 
-                    if ($("#remember").is(":checked")) {
-                        localStorage.setItem("NAME", $("#uid").val().trim());
-                        localStorage.setItem("PWD", $("#upwd").val().trim());
-                    } else {
-                        localStorage.setItem("NAME", "");
-                        localStorage.setItem("PWD", "");
-                    }
+//             sqlcmd = "delete from Account";
+//             tx.executeSql(sqlcmd);
+//             for (var i = 0; i < data.length; i++) {
+//                 sqlcmd = "insert into Account(USER_ID, LOGIN_ACCOUNT, LOGIN_PSD) values('" + data[i]["USER_ID"] + "','" + data[i]["LOGIN_ACCOUNT"] + "','" + data[i]["LOGIN_PSD"] + "')";
+//                 tx.executeSql(sqlcmd);
+//             }
+//             if (localStorage.getItem("updateTime") != undefined && localStorage.getItem("updateTime") != "") {
+//                 $(".wrapper").loading('stop');
+//                 if (localStorage.getItem("NAME") != undefined && localStorage.getItem("PWD") != undefined && localStorage.getItem("NAME") != "" && localStorage.getItem("PWD") != "") {
+//                     chkAccount();
+//                 }
+//             } else {
+//                 callBK = function () {
+//                     $(".wrapper").loading('stop');
+//                     localStorage.setItem("updateTime", new Date().getTime());
+//                     if (localStorage.getItem("NAME") != undefined && localStorage.getItem("PWD") != undefined && localStorage.getItem("NAME") != "" && localStorage.getItem("PWD") != "") {
+//                         chkAccount();
+//                     }
+//                 };
+//                 updateENG_PCC_BASIC();
+//             }
+//         },
+//         function (e) {
+//             console.log("ERROR: " + e.message);
+//         },
+//         function (e) {
+//             console.log("USERS Updated ");
 
-                    location.href = 'list.html';
-                } else {
-                    alert("您的帳號或密碼錯誤，請重新輸入。");
-                }
-            },
-                function (e) {
-                    console.log("ERROR: " + e.message);
-                });
-        }
-    );
-}
+//         }
+//     );
+// }
+
+
+// function chkAccount() {
+//     // db_check();
+//     // db_check2();
+//     var sqlcmd = "select * from Account where LOGIN_ACCOUNT='0x" + hex_md5($("#uid").val().trim()) + "' and LOGIN_PSD='0x" + hex_md5($("#upwd").val().trim()) + "'";
+//     db.transaction(
+//         function (tx) {
+//             tx.executeSql(sqlcmd, [], function (tx2, res) {
+//                 if (res.rows.length > 0) {
+//                     console.log("Aid:" + res.rows.item(0).Aid);
+//                     console.log("USER_ID:" + res.rows.item(0).USER_ID);
+//                     console.log("LOGIN_ACCOUNT:" + res.rows.item(0).LOGIN_ACCOUNT);
+//                     console.log("LOGIN_PSD:" + res.rows.item(0).LOGIN_PSD);
+
+//                     if ($("#remember").is(":checked")) {
+//                         localStorage.setItem("NAME", $("#uid").val().trim());
+//                         localStorage.setItem("PWD", $("#upwd").val().trim());
+//                     } else {
+//                         localStorage.setItem("NAME", "");
+//                         localStorage.setItem("PWD", "");
+//                     }
+
+//                     location.href = 'list.html';
+//                 } else {
+//                     alert("您的帳號或密碼錯誤，請重新輸入。");
+//                 }
+//             },
+//                 function (e) {
+//                     console.log("ERROR: " + e.message);
+//                 });
+//         }
+//     );
+// }
+//#endregion
+
 console.log('init on load......');
 app.initialize();
 $(function () {
